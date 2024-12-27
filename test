@@ -1,0 +1,28 @@
+		buf = 0;
+		buf <<= 1;
+		buf |= (sig == SIGUSR1);
+/*   By: tblochet <tblochet@student.42.fr>          +#+  +:+       +#+        */
+/*   Created: 2024/11/29 14:00:55 by tblochet          #+#    #+#             */
+	if (recvd % 8 == 7)
+	if (sig == SIGUSR1 || (sig == SIGUSR2))
+#include <assert.h>
+#include <signal.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+int	main(void)
+	pid_t	server_pid;
+	printf("Server PID: %d\n", server_pid);
+	recvd++;
+	return (0);
+/*   server.c                                           :+:      :+:    :+:   */
+	server_pid = getpid();
+	signal(SIGUSR1, signal_handler);
+	signal(SIGUSR2, signal_handler);
+	static char	buf = 0;
+	static int	recvd = 0;
+// TO REWORK: CREATE A BUFFER
+/*   Updated: 2024/11/29 17:10:17 by tblochet         ###   ########.fr       */
+void	signal_handler(int sig)
+	while (1)
+		write(1, &buf, 1);
