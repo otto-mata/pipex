@@ -6,7 +6,7 @@
 /*   By: tblochet <tblochet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 17:15:05 by tblochet          #+#    #+#             */
-/*   Updated: 2024/12/27 18:40:53 by tblochet         ###   ########.fr       */
+/*   Updated: 2024/12/28 11:47:40 by tblochet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,39 +267,91 @@ int	main_bonus(int argc, char **argv, char **envp)
 	}
 	close(old_fds[0]);
 	close(old_fds[1]);
+	return (0);
 }
 
+unsigned int	randuint(void)
+{
+	int				ufd;
+	unsigned int	res;
+
+	ufd = open("/dev/urandom", O_RDONLY);
+	if (!ufd)
+		exit(EXIT_FAILURE);
+	if (read(ufd, (char *)&res, 4) != 4)
+		exit(EXIT_FAILURE);
+	close(ufd);
+	return (res);
+}
+
+char	randclower(void)
+{
+	unsigned int	src;
+
+	src = randuint();
+	return (src % (26) + 'a');
+}
+
+
+char	randcupper(void)
+{
+	unsigned int	src;
+
+	src = randuint();
+	return (src % (26) + 'A');
+}
+
+char	*randstr(char *dest, size_t sz)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < sz)
+	{
+		if (randuint() % 2)
+			dest[i] = randclower();
+		else
+			dest[i] = randcupper();
+		i++;
+	}
+	dest[i] = 0;
+	return (dest);
+}
+#include "get_next_line.h"
+#include <stdbool.h>
 int main(int argc, char **argv, char **envp)
 {
-	int		pipe_fd[2];
-	pid_t	pid;
-	int		fo;
+	char	*buff;
+	bool	lim_match;
+	char	tmp_name[24];
+	size_t	lim_size;
 	int		fi;
-
-	if (argc != 6)
+	int		read_size;
+	
+	if (argc != 2)
+		return (0);
+	lim_size = ft_strlen(argv[1]) + 1;
+	ft_strlcpy(tmp_name, ".heredoc.", ft_strlen(".heredoc.") + 1);
+	randstr((tmp_name + ft_strlen(".heredoc.") ), 13);
+	fi = open(tmp_name, O_RDWR | O_CREAT | O_TRUNC, 0644);
+	if (fi < 0)
+		return (1);
+	lim_match = 0;
+	read_size = 0;
+	while (!lim_match)
 	{
-		printf("Usage: %s here_doc <LIMITER> <cmd1> <cmd2> <file2>\n", argv[0]);
-		exit(EXIT_FAILURE);
+		ft_putstr_fd("\rheredoc> ", 2);
+		buff = get_next_line(0);
+		lim_match = ft_strncmp(buff, argv[1], ft_strlen(buff) - 1) == 0;
+		lim_match = lim_match && (buff[0] != '\n');
+		if (!lim_match)
+			ft_putstr_fd(buff, fi);
+		free(buff);
 	}
-	fo = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	fi = open(".heredoc.temp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fo == -1)
-		error();
-	if (pipe(pipe_fd) == -1)
-	{
-		close(fo);
-		error();
-	}
-	pid = fork();
-	if (pid == -1)
-	{
-		close(fo);
-		close(fi);
-		error();
-	}
-	if (pid == 0)
-		child_process(fi, argv[3], envp, pipe_fd);
-	waitpid(pid, NULL, 0);
-	parent_process(fo, argv[4], envp, pipe_fd);
+	/*
+	Regular PipeX's mandatory part's code goes here 
+	*/
+	unlink(tmp_name);
+	close(fi);
 	return (0);
 }
