@@ -6,7 +6,7 @@
 /*   By: tblochet <tblochet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/29 17:15:05 by tblochet          #+#    #+#             */
-/*   Updated: 2024/12/28 11:47:40 by tblochet         ###   ########.fr       */
+/*   Updated: 2024/12/31 09:12:09 by tblochet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,16 @@
 char	*find_value_by_key(char *dict[], char *key)
 {
 	char	**d2;
-
+	size_t	key_len;
+	
+	if (!key || !dict)
+		return (0);
 	d2 = dict;
+	key_len = ft_strlen(key);
 	while (*d2)
 	{
-		if (ft_strncmp(key, *d2, ft_strlen(key)) == 0)
-			return (*d2 + ft_strlen(key) + 1);
+		if (ft_strncmp(key, *d2, key_len) == 0 && (*d2)[key_len] == '=')
+			return (*d2 + key_len + 1);
 		d2++;
 	}
 	return (0);
@@ -142,7 +146,7 @@ void	parent_process(int target_fd, char *cmd, char **envp, int *fd)
 
 /* Main function that run the child and parent process or display an error
  message if arguments are wrong */
-int	main_base(int argc, char **argv, char **envp)
+int	main(int argc, char **argv, char **envp)
 {
 	int		pipe_fd[2];
 	pid_t	pid;
@@ -184,19 +188,20 @@ int	main_base(int argc, char **argv, char **envp)
 		close(fi_fd);
 		error();
 	}
-	if (pid == 0)
+	else if (pid == 0)
 		child_process(fi_fd, cmd_1, envp, pipe_fd);
+	else
+		// fork2 
+		parent_process(fo_fd, cmd_2, envp, pipe_fd);
 	waitpid(pid, NULL, 0);
-	parent_process(fo_fd, cmd_2, envp, pipe_fd);
 	return (0);
 }
 
-int	main_bonus(int argc, char **argv, char **envp)
+int	_main(int argc, char **argv, char **envp)
 {
 	int		new_fds[2];
 	int		old_fds[2];
 	pid_t	pid;
-	pid_t	last_pid;
 	int		fo;
 	int		fi;
 	int		i;
@@ -262,7 +267,8 @@ int	main_bonus(int argc, char **argv, char **envp)
 				old_fds[0] = new_fds[0];
 				old_fds[1] = new_fds[1];
 			}
-			waitpid(pid, 0, 0);
+			// store PIDS for later 
+			// waitpid(pid, 0, 0);
 		}
 	}
 	close(old_fds[0]);
@@ -319,7 +325,7 @@ char	*randstr(char *dest, size_t sz)
 }
 #include "get_next_line.h"
 #include <stdbool.h>
-int main(int argc, char **argv, char **envp)
+int main_heredoc(int argc, char **argv, char **envp)
 {
 	char	*buff;
 	bool	lim_match;
@@ -338,6 +344,7 @@ int main(int argc, char **argv, char **envp)
 		return (1);
 	lim_match = 0;
 	read_size = 0;
+	// Replace by PIPE like bash > 5.1
 	while (!lim_match)
 	{
 		ft_putstr_fd("\rheredoc> ", 2);
