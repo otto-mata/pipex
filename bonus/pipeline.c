@@ -6,7 +6,7 @@
 /*   By: tblochet <tblochet@student.42.fr>                └─┘ ┴  ┴ └─┘        */
 /*                                                        ┌┬┐┌─┐┌┬┐┌─┐        */
 /*   Created: 2025/01/05 20:02:15 by tblochet             │││├─┤ │ ├─┤        */
-/*   Updated: 2025/01/05 21:40:54 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
+/*   Updated: 2025/01/07 07:28:07 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,14 @@ static void	fork_work(int i, t_pipes fds, char **argv, char **envp)
 	execute(argv[i], envp);
 }
 
+static void	close_all(t_pipes fds)
+{
+	close_pipe(fds.new);
+	close_pipe(fds.old);
+	close(fds.fi);
+	close(fds.fo);
+}
+
 static void	exec_cmds(t_pipes fds, pid_t *pid, char **argv, char **envp)
 {
 	int	i;
@@ -59,6 +67,8 @@ static void	exec_cmds(t_pipes fds, pid_t *pid, char **argv, char **envp)
 		if (argv[i + 1] != 0)
 			pipe(fds.new);
 		pid[i] = fork();
+		if (pid[i] < 0)
+			close_all(fds);
 		if (pid[i] == 0)
 			fork_work(i, fds, argv, envp);
 		if (pid[i] != 0 && i > 0)
@@ -68,7 +78,7 @@ static void	exec_cmds(t_pipes fds, pid_t *pid, char **argv, char **envp)
 	}
 }
 
-int	main(int argc, char **argv, char **envp)
+int	pipeline(int argc, char **argv, char **envp)
 {
 	t_pipes	fds;
 	pid_t	*pid;
@@ -84,5 +94,5 @@ int	main(int argc, char **argv, char **envp)
 	i = -1;
 	while (++i < argc - 2)
 		waitpid(pid[i], 0, 0);
-	return (close(fds.fo), free(pid), 0);
+	return (close_all(fds), free(pid), 0);
 }
