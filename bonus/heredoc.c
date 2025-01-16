@@ -6,7 +6,7 @@
 /*   By: tblochet <tblochet@student.42.fr>                └─┘ ┴  ┴ └─┘        */
 /*                                                        ┌┬┐┌─┐┌┬┐┌─┐        */
 /*   Created: 2025/01/05 21:41:09 by tblochet             │││├─┤ │ ├─┤        */
-/*   Updated: 2025/01/07 07:41:26 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
+/*   Updated: 2025/01/16 00:54:04 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ static void	get_content(t_heredoc conf)
 	{
 		ft_putstr_fd("\rheredoc> ", 2);
 		buff = get_next_line(0);
+		if (!buff)
+			break ;
 		lim_match = ft_strncmp(buff, conf.limiter, ft_strlen(buff) - 1) == 0;
 		lim_match = (lim_match && (buff[0] != '\n'));
 		if (!lim_match)
@@ -84,6 +86,7 @@ int	heredoc(t_heredoc conf, char **envp)
 		if (pid[1] == 0)
 			secnd_cmd(fo, conf.cmd1, envp, pipe_fd);
 	}
+	close(fo);
 	close_pipe(pipe_fd);
 	close_pipe(conf.pipe);
 	waitpid(pid[0], NULL, 0);

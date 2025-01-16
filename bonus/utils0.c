@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                                            */
-/*   utils.c                                              ┌─┐┌┬┐┌┬┐┌─┐        */
+/*   utils0.c                                             ┌─┐┌┬┐┌┬┐┌─┐        */
 /*                                                        │ │ │  │ │ │        */
 /*   By: tblochet <tblochet@student.42.fr>                └─┘ ┴  ┴ └─┘        */
 /*                                                        ┌┬┐┌─┐┌┬┐┌─┐        */
 /*   Created: 2025/01/05 18:45:24 by tblochet             │││├─┤ │ ├─┤        */
-/*   Updated: 2025/01/05 21:58:58 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
+/*   Updated: 2025/01/16 00:48:56 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,9 +81,12 @@ void	execute(char *argv, char **envp)
 
 	i = -1;
 	cmd = ft_split(argv, ' ');
+	if (!cmd)
+		exit(EXIT_FAILURE);
 	path = command_full_path(cmd[0], ft_split(value_of(envp, "PATH"), ':'));
 	if (!path)
 	{
+		ft_dprintf(2, "pipex: Command not found: %s\n", cmd[0]);
 		while (cmd[++i])
 			free(cmd[i]);
 		free(cmd);

@@ -6,7 +6,7 @@
 /*   By: tblochet <tblochet@student.42.fr>                └─┘ ┴  ┴ └─┘        */
 /*                                                        ┌┬┐┌─┐┌┬┐┌─┐        */
 /*   Created: 2025/01/05 20:02:15 by tblochet             │││├─┤ │ ├─┤        */
-/*   Updated: 2025/01/07 07:28:07 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
+/*   Updated: 2025/01/16 01:14:53 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,6 @@ static void	fork_work(int i, t_pipes fds, char **argv, char **envp)
 
 static void	close_all(t_pipes fds)
 {
-	close_pipe(fds.new);
-	close_pipe(fds.old);
 	close(fds.fi);
 	close(fds.fo);
 }

@@ -43,4 +43,4 @@ all: $(NAME)
 
 default: all
 
-.PHONY: all re clean fclean
+.PHONY: all re clean fclean bonus
