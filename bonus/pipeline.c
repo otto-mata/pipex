@@ -6,7 +6,7 @@
 /*   By: tblochet <tblochet@student.42.fr>                └─┘ ┴  ┴ └─┘        */
 /*                                                        ┌┬┐┌─┐┌┬┐┌─┐        */
 /*   Created: 2025/01/05 20:02:15 by tblochet             │││├─┤ │ ├─┤        */
-/*   Updated: 2025/01/16 01:14:53 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
+/*   Updated: 2025/01/16 04:10:28 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ static void	setup(t_pipes *fds, char *fo_name, char *fi_name)
 	{
 		close(fds->fo);
 		close(fds->fi);
-		error("pipe_val");
+		error("pipe");
 	}
 	if (dup2(fds->fi, STDIN_FILENO) < 0)
 		error("dup2[fi=>STDIN]");
@@ -66,31 +66,35 @@ static void	exec_cmds(t_pipes fds, pid_t *pid, char **argv, char **envp)
 			pipe(fds.new);
 		pid[i] = fork();
 		if (pid[i] < 0)
+		{
 			close_all(fds);
-		if (pid[i] == 0)
+			error("pipex: fork");
+		}
+		else if (pid[i] == 0)
 			fork_work(i, fds, argv, envp);
-		if (pid[i] != 0 && i > 0)
-			close_pipe(fds.old);
-		if (pid[i] != 0 && argv[i + 1] != 0)
-			pipcpy(fds.old, fds.new);
+		else
+		{
+			if (i > 0)
+				close_pipe(fds.old);
+			if (argv[i + 1] != 0)
+				pipcpy(fds.old, fds.new);
+		}
 	}
 }
 
 int	pipeline(int argc, char **argv, char **envp)
 {
 	t_pipes	fds;
-	pid_t	*pid;
+	pid_t	pid[1024];
 	int		i;
 
 	setup(&fds, argv[argc - 1], argv[1]);
 	argv[argc - 1] = 0;
 	argv = &argv[2];
-	pid = ft_calloc((argc - 2), sizeof(pid_t));
-	if (!pid)
-		return (1);
+	ft_bzero(pid, 1024 * sizeof(pid_t));
 	exec_cmds(fds, pid, argv, envp);
 	i = -1;
 	while (++i < argc - 2)
 		waitpid(pid[i], 0, 0);
-	return (close_all(fds), free(pid), 0);
+	return (close_all(fds), 0);
 }

@@ -6,7 +6,7 @@
 /*   By: tblochet <tblochet@student.42.fr>                └─┘ ┴  ┴ └─┘        */
 /*                                                        ┌┬┐┌─┐┌┬┐┌─┐        */
 /*   Created: 2025/01/05 18:45:24 by tblochet             │││├─┤ │ ├─┤        */
-/*   Updated: 2025/01/16 00:43:17 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
+/*   Updated: 2025/02/01 16:23:57 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,10 @@ char	*command_full_path(char const *cmd, char **paths)
 	char	*tmp;
 
 	p = paths;
+	if (!p || !cmd)
+		return (free_2d((void **)paths), (void *)0);
+	if (ft_strchr(cmd, '/') && !access(cmd, X_OK))
+		return (free_2d((void **)paths), (char *)cmd);
 	while (*p)
 	{
 		tmp = ft_strjoin((char const *)*p, "/");
@@ -86,12 +90,13 @@ void	execute(char *argv, char **envp)
 	path = command_full_path(cmd[0], ft_split(value_of(envp, "PATH"), ':'));
 	if (!path)
 	{
-		ft_dprintf(2, "pipex: Command not found: %s\n", cmd[0]);
+		ft_dprintf(2, "pipex: command not found: %s\n", cmd[0]);
 		while (cmd[++i])
 			free(cmd[i]);
 		free(cmd);
 		exit(EXIT_FAILURE);
 	}
 	if (execve(path, cmd, envp) == -1)
-		error("exec");
+		ft_dprintf(2, "pipex: exec: %s failed\n", cmd[0]);
+	free_2d((void **)cmd);
 }

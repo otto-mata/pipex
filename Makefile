@@ -1,7 +1,7 @@
 NAME=pipex
 BONUS=$(NAME)_bonus
 CC=clang
-CFLAGS=-Wall -Werror -Wextra
+CFLAGS=-Wall -Werror -Wextra -ggdb
 
 SRC=./mandatory/mandatory.c \
 	./mandatory/utils.c

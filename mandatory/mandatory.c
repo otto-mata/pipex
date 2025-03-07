@@ -6,7 +6,7 @@
 /*   By: tblochet <tblochet@student.42.fr>                └─┘ ┴  ┴ └─┘        */
 /*                                                        ┌┬┐┌─┐┌┬┐┌─┐        */
 /*   Created: 2025/01/05 18:45:05 by tblochet             │││├─┤ │ ├─┤        */
-/*   Updated: 2025/01/14 02:37:24 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
+/*   Updated: 2025/02/01 16:23:26 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,10 @@
 
 static void	first_cmd(int target_fd, char *cmd, char **envp, int *fd)
 {
-	dup2(fd[1], STDOUT_FILENO);
-	dup2(target_fd, STDIN_FILENO);
+	if (dup2(fd[1], STDOUT_FILENO) < 0)
+		error("pipex: dup2");
+	if (dup2(target_fd, STDIN_FILENO) < 0)
+		error("pipex: dup2");
 	close(fd[1]);
 	close(fd[0]);
 	close(target_fd);
@@ -24,8 +26,10 @@ static void	first_cmd(int target_fd, char *cmd, char **envp, int *fd)
 
 static void	secnd_cmd(int target_fd, char *cmd, char **envp, int *fd)
 {
-	dup2(fd[0], STDIN_FILENO);
-	dup2(target_fd, STDOUT_FILENO);
+	if (dup2(fd[0], STDIN_FILENO) < 0)
+		error("pipex: dup2");
+	if (dup2(target_fd, STDOUT_FILENO) < 0)
+		error("pipex: dup2");
 	close(fd[0]);
 	close(fd[1]);
 	close(target_fd);
@@ -36,18 +40,18 @@ static void	validate(int *fi, int *fo, int *p, char **argv)
 {
 	*fo = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (*fo == -1)
-		error("file_out");
+		error("pipex: outfile");
 	*fi = open(argv[1], O_RDONLY);
 	if (*fi == -1)
 	{
 		close(*fo);
-		error("file_in");
+		error("pipex: infile");
 	}
 	if (pipe(p) < 0)
 	{
 		close(*fo);
 		close(*fi);
-		error("pipe_val");
+		error("pipex: pipe");
 	}
 }
 
@@ -58,7 +62,7 @@ static void	safer_fork(pid_t *pid, int fi, int fo)
 	{
 		close(fo);
 		close(fi);
-		error("safer_fork");
+		error("pipex: fork");
 	}
 }
 

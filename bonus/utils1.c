@@ -6,7 +6,7 @@
 /*   By: tblochet <tblochet@student.42.fr>                └─┘ ┴  ┴ └─┘        */
 /*                                                        ┌┬┐┌─┐┌┬┐┌─┐        */
 /*   Created: 2025/01/07 07:05:31 by tblochet             │││├─┤ │ ├─┤        */
-/*   Updated: 2025/01/07 07:20:01 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
+/*   Updated: 2025/01/16 04:12:30 by tblochet             ┴ ┴┴ ┴ ┴ ┴ ┴        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,6 @@ void	safer_fork(pid_t *pid, int fi, int fo)
 	{
 		close(fo);
 		close(fi);
-		error("safer_fork");
+		error("pipex: fork");
 	}
 }
